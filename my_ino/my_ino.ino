@@ -1,4 +1,5 @@
 #include "MeccaBrain.h"
+#include <math.h>
 
 MeccaBrain servoL(5);
 MeccaBrain servoR(6);
@@ -72,20 +73,15 @@ void setStraight() {
 void run(int i) {
   setLeftShoulder(0.1);
   setRightShoulder(0.1);
-  switch (i%4) {
-    case 0:
-      setLeftElbow(0.1);
-      break;
-    case 1:
-      setRightElbow(0.1);
-      break;
-    case 2:
-      setLeftElbow(0.4);
-      break;
-    case 3:
-      setRightElbow(0.4);
-      break;
-  }  
+  setLeftElbow((1.0f+cos(float(i)*2.0*PI/7.0))/3.0f);
+  setRightElbow((1.0f+cos((float(i)*2.0*PI/7.0)+PI))/3.0f);
+}
+
+void nawak(int i) {
+  setLeftShoulder((1.0f+cos(float(i)*2.0*PI/5.0))/2.0f);
+  setRightShoulder((1.0f+cos(float(i)*2.0*PI/6.0))/2.0f);
+  setLeftElbow((1.0f+cos(float(i)*2.0*PI/7.0))/2.0f);
+  setRightElbow((1.0f+cos(float(i)*2.0*PI/8.0))/2.0f);
 }
 
 void rest(int i) {
@@ -93,11 +89,14 @@ void rest(int i) {
 }
 
 void choregraphy(int i) {
-  switch ((i/20)%4) {
+  switch ((i/20)%5) {
     case 0:
     case 1:
-    case 2:
       run(i);
+      break;
+    case 2:
+    case 3:
+      nawak(i);
       break;
     default:
      rest(i);
@@ -119,7 +118,7 @@ void loop(){
 
   choregraphy(++counter);
   
-  delay(200);
+  delay(10);
 }
 
 
