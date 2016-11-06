@@ -84,18 +84,46 @@ void nawak(int i) {
   setRightElbow((1.0f+cos(float(i)*2.0*PI/8.0))/2.0f);
 }
 
+void butterfly(int i) {
+  setLeftShoulder((1.0f+cos(float(i)*2.0*PI/7.0))/2.0f);
+  setRightShoulder((1.0f+cos(float(i)*2.0*PI/7.0))/2.0f);
+  setLeftElbow((1.0f+cos(float(i)*2.0*PI/7.0))/2.0f);
+  setRightElbow((1.0f+cos(float(i)*2.0*PI/7.0))/2.0f);
+}
+
+void crawl(int i) {
+  setLeftShoulder((1.0f+cos(float(i)*2.0*PI/7.0+PI))/2.0f);
+  setRightShoulder((1.0f+cos(float(i)*2.0*PI/7.0))/2.0f);
+  setLeftElbow((1.0f+cos(float(i)*2.0*PI/7.0+PI))/2.0f);
+  setRightElbow((1.0f+cos(float(i)*2.0*PI/7.0))/2.0f);
+}
+
+void circle(int i) {
+  setLeftShoulder((1.0f+cos(float(i)*2.0*PI/7.0))/4.0f);
+  setRightShoulder((1.0f+cos(float(i)*2.0*PI/7.0))/4.0f);
+  setLeftElbow((1.0f+cos(float(i)*2.0*PI/7.0))/4.0f);
+  setRightElbow((1.0f+cos(float(i)*2.0*PI/7.0))/4.0f);
+}
+
 void rest(int i) {
     setStraight();
 }
 
 void choregraphy(int i) {
-  switch ((i/20)%5) {
+  switch ((i/20)%6) {
     case 0:
+      crawl(i);
+       break;
     case 1:
-      run(i);
+      butterfly(i);
       break;
     case 2:
+      run(i);
+      break;
     case 3:
+      circle(i);
+      break;
+    case 4:
       nawak(i);
       break;
     default:

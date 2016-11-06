@@ -13,3 +13,7 @@ An attempt to pilot a Meccanoid robot, during a "coging goûter"
 * install Arduino IDE
 * create a project with test_ino and use this folder as the sketch root folder (will enable the meccabrain library)
 
+# todo ...
+
+See processing & firmata.
+
