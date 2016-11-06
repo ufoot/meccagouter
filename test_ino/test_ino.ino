@@ -1,6 +1,6 @@
 #include "MeccaBrain.h"
 
-MeccaBrain servo(5);
+MeccaBrain servo(3);
  
 const int TRIG_PIN = 3;
 const int ECHO_PIN = 4; 
