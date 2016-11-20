@@ -88,7 +88,7 @@ void meccafirmHandleError(int pin, int value, const char *msg) {
   }
 }
 
-void meccafirmAnalogWriteCallback(byte pin, int value)
+void meccafirmWriteCallback(byte pin, int value)
 {
   meccafirmHandleError(pin, value, MECCAFIRM_ERROR_INVALID_PIN);
   /*
@@ -109,17 +109,18 @@ void setup()
   pinMode(MECCAFIRM_LED_BUILTIN, OUTPUT);
 
   Firmata.setFirmwareVersion(0, 2);
-  Firmata.attach(ANALOG_MESSAGE, meccafirmAnalogWriteCallback);
+  //Firmata.attach(ANALOG_MESSAGE, meccafirmWriteCallback);
+  Firmata.attach(DIGITAL_MESSAGE, meccafirmWriteCallback);
 
   Firmata.begin(57600);
+
+  digitalWrite(MECCAFIRM_LED_BUILTIN, LOW);
 }
 
 void loop()
 {
   int s;
-  digitalWrite(MECCAFIRM_LED_BUILTIN, HIGH);
   while(Firmata.available()) {
     Firmata.processInput();
-    digitalWrite(MECCAFIRM_LED_BUILTIN, (s=!s) ?HIGH:LOW);
   }
 }
