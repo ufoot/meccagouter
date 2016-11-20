@@ -7,6 +7,7 @@ An attempt to pilot a Meccanoid robot, during a "coging goûter"
 * [Arduino build process](https://www.arduino.cc/en/Hacking/BuildProcess)
 * [Arduino under Linux](http://playground.arduino.cc/Learning/Linux)
 * [A demo video](https://www.youtube.com/watch?v=8y_xMW0Kr5c)
+* [A demo source code](https://github.com/robotscity/meccanoid_arduino_demo/blob/master/demo_meccanoids.ino)
 
 # how to compile this ?
 
