@@ -27,7 +27,14 @@ const int MECCAFIRM_LED_PINS[]={9,10,0}; // must end by 0
  * in order to make this work.
  * NOT SUPPORTED YET.
  */
-const int MECCAFIRM_MOTOR_PINS[]={11,12,13,14,0};
+const int MECCAFIRM_MOTOR_PINS[]={11,12,0};
+
+/**
+ * Pin ID used to report errors, bind this to the builtin LED.
+ * See https://www.arduino.cc/en/tutorial/blink for details, I use 13
+ * for an Arduino UNO but this depends on the hardware you have.
+ */
+const int MECCAFIRM_LED_BUILTIN=LED_BUILTIN;
 
 const int MECCAFIRM_TRUE=1;
 const int MECCAFIRM_FALSE=0;
@@ -36,7 +43,7 @@ const char *MECCAFIRM_ERROR_INVALID_PIN="invalid pin";
 
 static int meccafirmIsPin(int pin, const int *pins) {
   int i,p;
-  for (i=0; (p=pins[i])!=0; ++i) {
+  for (i=0; (p=pins[i])!=0; i++) {
     if (p==pin) {
     return MECCAFIRM_TRUE;
   }
@@ -63,31 +70,43 @@ void meccafirmHandleLed(int pin, int value) {
 }
 
 void meccafirmHandleMotor(int pin, int value) {
+  
 }
 
 void meccafirmHandleError(int pin, int value, const char *msg) {
   // this should never happen, it's complicated, on a
   // platform like Arduino, to report errors, but if you
   // have a way to do so (custom led, serial output...)
-  // do it here!
+  // do it here! By default, the builtin led blinks.
+  int i;
+  
+  for (i=0;i<3;i++) {
+     digitalWrite(LED_BUILTIN, HIGH);
+     delay(50);
+     digitalWrite(LED_BUILTIN, LOW);
+     delay(25);
+  }
 }
 
 void meccafirmAnalogWriteCallback(byte pin, int value)
 {
-  if (meccafirmIsPinServo(pin)) {
+  meccafirmHandleError(pin, value, MECCAFIRM_ERROR_INVALID_PIN);
+  /*
+  if (meccafirmIsPinServo(pin)==MECCAFIRM_TRUE) {
     meccafirmHandleServo(pin, value);
-  } else  if (meccafirmIsPinLed(pin)) {
+  } else  if (meccafirmIsPinLed(pin)==MECCAFIRM_TRUE){
     meccafirmHandleLed(pin, value);
-  } else  if (meccafirmIsPinMotor(pin)) {
+  } else  if (meccafirmIsPinMotor(pin)==MECCAFIRM_TRUE) {
     meccafirmHandleMotor(pin, value);
   } else {
     meccafirmHandleError(pin, value, MECCAFIRM_ERROR_INVALID_PIN);
   }
+  */
 }
 
 void setup()
 {
-  byte pin;
+  pinMode(MECCAFIRM_LED_BUILTIN, OUTPUT);
 
   Firmata.setFirmwareVersion(0, 2);
   Firmata.attach(ANALOG_MESSAGE, meccafirmAnalogWriteCallback);
@@ -97,7 +116,10 @@ void setup()
 
 void loop()
 {
+  int s;
+  digitalWrite(MECCAFIRM_LED_BUILTIN, HIGH);
   while(Firmata.available()) {
     Firmata.processInput();
+    digitalWrite(MECCAFIRM_LED_BUILTIN, (s=!s) ?HIGH:LOW);
   }
 }
