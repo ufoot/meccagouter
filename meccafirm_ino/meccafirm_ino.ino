@@ -19,7 +19,7 @@ const int MECCAFIRM_SERVO_PINS[]={5,6,7,8,0}; // must end by 0
  * Connect the pins to the head (eyes) of the meccanoid robot.
  * NOT SUPPORTED YET.
  */
-const int MECCAFIRM_LED_PINS[]={9,10,0}; // must end by 0
+const int MECCAFIRM_LED_PINS[]={9,0}; // must end by 0
 
 /**
  * The list of pins dedicated to "wheels".
@@ -28,13 +28,6 @@ const int MECCAFIRM_LED_PINS[]={9,10,0}; // must end by 0
  * NOT SUPPORTED YET.
  */
 const int MECCAFIRM_MOTOR_PINS[]={11,12,0};
-
-/**
- * Pin ID used to report errors, bind this to the builtin LED.
- * See https://www.arduino.cc/en/tutorial/blink for details, I use 13
- * for an Arduino UNO but this depends on the hardware you have.
- */
-const int MECCAFIRM_LED_BUILTIN=LED_BUILTIN;
 
 const int MECCAFIRM_TRUE=1;
 const int MECCAFIRM_FALSE=0;
@@ -78,49 +71,107 @@ void meccafirmHandleError(int pin, int value, const char *msg) {
   // platform like Arduino, to report errors, but if you
   // have a way to do so (custom led, serial output...)
   // do it here! By default, the builtin led blinks.
+}
+
+void meccafirmBuiltinLedAck() {
+     digitalWrite(LED_BUILTIN, HIGH);
+     delayMicroseconds(100);
+     digitalWrite(LED_BUILTIN, LOW);  
+}
+
+void meccafirmBuiltinLedFastBlink() {
+     delay(25);
+     digitalWrite(LED_BUILTIN, HIGH);
+     delay(100);
+     digitalWrite(LED_BUILTIN, LOW);
+     delay(25);  
+}
+
+void meccafirmBuiltinLedSlowBlink() {
+     delay(100);
+     digitalWrite(LED_BUILTIN, HIGH);
+     delay(400);
+     digitalWrite(LED_BUILTIN, LOW);
+     delay(100);  
+}
+
+void meccafirmBuiltinLedSOS() {
   int i;
   
   for (i=0;i<3;i++) {
-     digitalWrite(LED_BUILTIN, HIGH);
-     delay(50);
-     digitalWrite(LED_BUILTIN, LOW);
-     delay(25);
+    meccafirmBuiltinLedSlowBlink();
+  }
+  for (i=0;i<3;i++) {
+    meccafirmBuiltinLedFastBlink();
+  }
+  for (i=0;i<3;i++) {
+    meccafirmBuiltinLedSlowBlink();
   }
 }
 
-void meccafirmWriteCallback(byte pin, int value)
+void meccafirmLedDebug(byte pin, int value)
 {
-  meccafirmHandleError(pin, value, MECCAFIRM_ERROR_INVALID_PIN);
-  /*
+  int i;
+  
+  for (i=0;i<=pin;i++) {
+   meccafirmBuiltinLedSlowBlink();   
+  }
+  for (i=0;i<=value;i++) {
+   meccafirmBuiltinLedFastBlink();   
+  }
+}
+
+void meccafirmAnalogWriteCallback(byte pin, int value)
+{
   if (meccafirmIsPinServo(pin)==MECCAFIRM_TRUE) {
+    meccafirmBuiltinLedAck();
     meccafirmHandleServo(pin, value);
   } else  if (meccafirmIsPinLed(pin)==MECCAFIRM_TRUE){
+    meccafirmBuiltinLedAck();
     meccafirmHandleLed(pin, value);
   } else  if (meccafirmIsPinMotor(pin)==MECCAFIRM_TRUE) {
+    meccafirmBuiltinLedAck();
     meccafirmHandleMotor(pin, value);
   } else {
+    meccafirmBuiltinLedSOS();
     meccafirmHandleError(pin, value, MECCAFIRM_ERROR_INVALID_PIN);
-  }
-  */
+}
+}
+
+void meccafirmSetPinModeCallback(byte pin, int mode)
+{
+      if (IS_PIN_DIGITAL(pin)) {
+        pinMode(PIN_TO_DIGITAL(pin), mode);
+    }
 }
 
 void setup()
 {
-  pinMode(MECCAFIRM_LED_BUILTIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
 
-  Firmata.setFirmwareVersion(0, 2);
-  //Firmata.attach(ANALOG_MESSAGE, meccafirmWriteCallback);
-  Firmata.attach(DIGITAL_MESSAGE, meccafirmWriteCallback);
+ Firmata.setFirmwareVersion(FIRMATA_MAJOR_VERSION, FIRMATA_MINOR_VERSION);
+  Firmata.attach(ANALOG_MESSAGE, meccafirmLedDebug);
+     Firmata.attach(SET_PIN_MODE, meccafirmSetPinModeCallback);
 
   Firmata.begin(57600);
-
-  digitalWrite(MECCAFIRM_LED_BUILTIN, LOW);
 }
 
 void loop()
 {
-  int s;
+  int i;
   while(Firmata.available()) {
     Firmata.processInput();
+     for(i = 0; i < TOTAL_ANALOG_PINS; i++) {
+ Firmata.sendAnalog(i, analogRead(i)); 
+ }
+    /*
+      for (i = 0; i < TOTAL_PORTS; i++) {
+        if (meccafirmIsPinServo(i) || meccafirmIsPinLed(i) || meccafirmIsPinMotor(i)) {
+          Firmata.sendDigital(i, digitalRead(i));
+        }
+        
+  }
+  */ 
   }
 }
